@@ -50,7 +50,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
 
         try {
             Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry");
+            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry_unixtime");
 
             while (rs.next()) {
                 currentEntry = kEntryModelMapper.parseFromResultSet(rs);
@@ -60,8 +60,8 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                             currentEntry.getUser(),
                             currentEntry.getRoute(),
                             currentEntry.getModifier(),
-                            DateTimeUtils.formatEpochTime(DateTimeUtils.TimeResolution.SECONDS,
-                                    (int) currentEntry.getSubmissionDate())));
+                            DateTimeUtils.formatEpochTime(currentEntry.getSubmissionDate(),
+                                    DateTimeUtils.TimeResolution.SECONDS)));
                 } else {
                     logger.warning("Attempted to read a NULL kudo entry");
                 }
@@ -90,7 +90,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
 
         try {
             Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry WHERE user = " + userId);
+            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry_unixtime WHERE user = " + userId);
 
             while (rs.next()) {
                 currentEntry = kEntryModelMapper.parseFromResultSet(rs);
@@ -100,8 +100,8 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                             currentEntry.getUser(),
                             currentEntry.getRoute(),
                             currentEntry.getModifier(),
-                            DateTimeUtils.formatEpochTime(DateTimeUtils.TimeResolution.SECONDS,
-                                    (int) currentEntry.getSubmissionDate())));
+                            DateTimeUtils.formatEpochTime(currentEntry.getSubmissionDate(),
+                                    DateTimeUtils.TimeResolution.SECONDS)));
                 } else {
                     logger.warning("Attempted to read a NULL kudo entry");
                 }
@@ -145,7 +145,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
 
         try {
             Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry WHERE route = " + routeId);
+            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry_unixtime WHERE route = " + routeId);
 
             while (rs.next()) {
                 currentEntry = kEntryModelMapper.parseFromResultSet(rs);
@@ -155,8 +155,8 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                             currentEntry.getUser(),
                             currentEntry.getRoute(),
                             currentEntry.getModifier(),
-                            DateTimeUtils.formatEpochTime(DateTimeUtils.TimeResolution.SECONDS,
-                                    (int) currentEntry.getSubmissionDate())));
+                            DateTimeUtils.formatEpochTime(currentEntry.getSubmissionDate(),
+                                    DateTimeUtils.TimeResolution.SECONDS)));
                 } else {
                     logger.warning("Attempted to read a NULL kudo entry");
                 }
@@ -186,7 +186,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
 
         try {
             Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery(String.format("SELECT * FROM routekudosregistry " +
+            ResultSet rs = st.executeQuery(String.format("SELECT * FROM routekudosregistry_unixtime " +
                     "WHERE user = %d AND route = %d", id[0], id[1]));
 
             if (rs.next()) {
@@ -195,8 +195,8 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                         kudoEntry.getUser(),
                         kudoEntry.getRoute(),
                         kudoEntry.getModifier(),
-                        DateTimeUtils.formatEpochTime(DateTimeUtils.TimeResolution.SECONDS,
-                                (int) kudoEntry.getSubmissionDate())));
+                        DateTimeUtils.formatEpochTime(kudoEntry.getSubmissionDate(),
+                                DateTimeUtils.TimeResolution.SECONDS)));
             } else {
                 logger.warning("There's no Kudo entry by the id (" + id[0] + ")");
             }

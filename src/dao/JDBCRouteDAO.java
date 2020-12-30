@@ -11,9 +11,10 @@ import model.RouteCategory;
 import model.RouteToCategoriesMapping;
 import routefilter.SQLRouteFilter;
 
-import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -136,10 +137,10 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
         Function<Connection, Long> queryLatestId = connection -> {
             try {
                 Statement st = connection.createStatement();
-                ResultSet rs = st.executeQuery("SELECT seq from sqlite_sequence WHERE name = 'routes'");
+                ResultSet rs = st.executeQuery("SELECT id FROM routes ORDER BY id DESC LIMIT 1");
 
                 if (rs.next()) {
-                    long id = rs.getLong("seq");
+                    long id = rs.getLong("id");
                     st.close();
                     return id;
                 }
@@ -331,91 +332,6 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
         return deletionSuccessful;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Route> getTopRoutesOfTheWeek() {
-
-        if (!dependenciesConfigured()) return null;
-
-        logger.info("FETCHING TOP WEEKLY ROUTES BY KUDOS");
-
-        ModelMapper<Route> routeModelMapper = ModelMapperFactory.get().forModel(Route.class);
-        ArrayList<Route> topWeekRoutes = new ArrayList<>();
-        Route currentRoute;
-        // Query that retrieves top weekly routes by kudos submitted this within this week time span ordered by descending kudos
-        String sqlPreparedQuery = "SELECT r.id AS id,\n" +
-                "       r.created_by_user AS created_by_user,\n" +
-                "       r.title AS title,\n" +
-                "       r.description AS description,\n" +
-                "       r.distance AS distance,\n" +
-                "       r.duration AS duration,\n" +
-                "       r.elevation AS elevation,\n" +
-                "       r.creation_date AS creation_date,\n" +
-                "       r.skill_level AS skill_level,\n" +
-                "       r.blocked AS blocked,\n" +
-                "       (SELECT coalesce(sum(modifier), 0)\n" +
-                "        FROM routekudosregistry\n" +
-                "        WHERE route = r.id\n" +
-                "          AND date(submission_date, 'unixepoch') BETWEEN ? AND date('now', 'localtime')) as kudos,\n" +
-                "       group_concat(DISTINCT rc.name) AS categories\n" +
-                "FROM routes r\n" +
-                "         INNER JOIN routetocategoriesmapping rcm ON r.id = rcm.route\n" +
-                "         INNER JOIN routecategories rc ON rcm.category = rc.id\n" +
-                "         INNER JOIN routekudosregistry rkr on r.id = rkr.route\n" +
-                "WHERE kudos > 0\n" +
-                "  AND date(rkr.submission_date, 'unixepoch') BETWEEN ? AND date('now', 'localtime')\n" +
-                "GROUP BY r.id\n" +
-                "ORDER BY kudos DESC";
-
-        // Calculate date of last monday, the start of the current week
-
-        SimpleDateFormat dayWeekFormatter = new SimpleDateFormat("u"); // Get the day number of week (1 = monday)
-        // Go back 'current day of week number' - 1 (adjust for mondays) days to get to the start of the current week
-        LocalDate startOfWeek = LocalDate
-                .now()
-                .minusDays(Integer.parseInt(dayWeekFormatter.format(new Date())) - 1);
-
-        // Execute the query to get the ordered list of top weekly routes
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlPreparedQuery);
-            // Set both query variables to the computed week start in SQL date format
-            preparedStatement.setString(1, startOfWeek.toString());
-            preparedStatement.setString(2, startOfWeek.toString());
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            // Parse each returned route
-
-            while (rs.next()) {
-                currentRoute = routeModelMapper.parseFromResultSet(rs);
-                if (currentRoute != null) {
-                    topWeekRoutes.add(currentRoute);
-                    logger.info(String.format("[Fetched top weekly route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
-                            currentRoute.getId(),
-                            currentRoute.getCreatedByUser(),
-                            currentRoute.getTitle(),
-                            currentRoute.getCreationDate(),
-                            currentRoute.getKudos(),
-                            currentRoute.getCategories()));
-                } else {
-                    logger.warning("Attempted to read a NULL route");
-                }
-            }
-
-            preparedStatement.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        return topWeekRoutes;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<Route> getTopRoutesOfTheMonth() {
         if (!dependenciesConfigured()) return null;
@@ -454,6 +370,46 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
         }
 
         return topMonthlyRoutes;
+    }
+
+    @Override
+    public List<Route> getTopRoutesOfTheWeek() {
+        if (!dependenciesConfigured()) return null;
+
+        logger.info("FETCHING TOP WEEKLY ROUTES BY KUDOS");
+
+        Route currentRoute;
+        List<Route> topWeeklyRoutes = new ArrayList<>();
+        ModelMapper<Route> routeModelMapper = ModelMapperFactory.get().forModel(Route.class);
+
+        // Query the view of top weekly routes by kudos given this month
+
+        try {
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM top_weekly_routes_by_kudos");
+
+            while (rs.next()) {
+                currentRoute = routeModelMapper.parseFromResultSet(rs);
+                if (currentRoute != null) {
+                    topWeeklyRoutes.add(currentRoute);
+                    logger.info(String.format("[Fetched top weekly route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+                            currentRoute.getId(),
+                            currentRoute.getCreatedByUser(),
+                            currentRoute.getTitle(),
+                            currentRoute.getCreationDate(),
+                            currentRoute.getKudos(),
+                            currentRoute.getCategories()));
+                } else {
+                    logger.warning("Attempted to read a NULL route");
+                }
+            }
+
+            st.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return topWeeklyRoutes;
     }
 
     /**

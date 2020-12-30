@@ -8,10 +8,25 @@
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
 
-  <!-- Filename of the SQLite Database -->
+  <!-- MySQL DB Host -->
   <context-param>
-    <param-name>dbName</param-name>
-    <param-value>JPGPP.db</param-value>
+    <param-name>host</param-name>
+    <param-value>mysql-rutastic.csykowa7niso.us-east-1.rds.amazonaws.com:3306</param-value>
+  </context-param>
+  <!-- MySQL DB Name -->
+  <context-param>
+    <param-name>db</param-name>
+    <param-value>rutastic</param-value>
+  </context-param>
+  <!-- MySQL DB User -->
+  <context-param>
+    <param-name>dbUser</param-name>
+    <param-value>admin</param-value>
+  </context-param>
+  <!-- MySQL DB User password -->
+  <context-param>
+    <param-name>dbPwd</param-name>
+    <param-value>*</param-value>
   </context-param>
 
   <!-- Enable HTTPS connector on port 8443 with SSL for the entire webapp -->

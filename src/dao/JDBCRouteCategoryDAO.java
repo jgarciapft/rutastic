@@ -154,10 +154,10 @@ public class JDBCRouteCategoryDAO implements RouteCategoryDAO, DAOImplJDBC {
         Function<Connection, Long> queryLatestId = connection -> {
             try {
                 Statement st = connection.createStatement();
-                ResultSet rs = st.executeQuery("SELECT seq from sqlite_sequence WHERE name = 'routecategories'");
+                ResultSet rs = st.executeQuery("SELECT id FROM routecategories ORDER BY id DESC LIMIT 1");
 
                 if (rs.next()) {
-                    long id = rs.getLong("seq");
+                    long id = rs.getLong("id");
                     st.close();
                     return id;
                 }

@@ -3,7 +3,6 @@ package listener;
 import dao.factories.DAOAbstractFactory;
 import dao.factories.DAOFactoryJDBC;
 import dao.implementations.DAOImplJDBC;
-import org.sqlite.SQLiteConfig;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -20,20 +19,20 @@ public class WebappInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        ServletContext servletContext = sce.getServletContext();
         Connection conn = null;
-        SQLiteConfig sqLiteConfig = new SQLiteConfig(); // SQLite configurations
-        String dbURL = "jdbc:sqlite:file:" + System.getProperty("user.home") + "/sqliteDB/" +
-                sce.getServletContext().getInitParameter("dbName"); // Path to DB
+        String dbURL = "jdbc:mysql://" + servletContext.getInitParameter("host") + "/" +
+                servletContext.getInitParameter("db");
 
         // Create DB connection, configure it and store it as an attribute of the servlet context
 
         try {
-            Class.forName("org.sqlite.JDBC");
-            sqLiteConfig.enforceForeignKeys(true); // Enable foreign key constraints
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Create connection with options
 
-            conn = DriverManager.getConnection(dbURL, sqLiteConfig.toProperties());
+            conn = DriverManager.getConnection(dbURL, servletContext.getInitParameter("dbUser"),
+                    servletContext.getInitParameter("dbPwd"));
 
             // Check that the connection could be established correctly
 
@@ -53,7 +52,7 @@ public class WebappInitializer implements ServletContextListener {
 
                 // Store the connection
 
-                sce.getServletContext().setAttribute(SC_ATTR_CONNECTION_IDENTIFIER, conn);
+                servletContext.setAttribute(SC_ATTR_CONNECTION_IDENTIFIER, conn);
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
