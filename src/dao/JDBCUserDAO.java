@@ -49,11 +49,9 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
                 currentUser = userModelMapper.parseFromResultSet(rs);
                 if (currentUser != null) {
                     allUsers.add(currentUser);
-                    logger.info(String.format("[FETCHED USER] id: %d | username: %s | email: %s | role: %s",
+                    logger.info(String.format("[FETCHED USER] id: %d | username: %s",
                             currentUser.getId(),
-                            currentUser.getUsername(),
-                            currentUser.getEmail(),
-                            currentUser.getRole()));
+                            currentUser.getUsername()));
                 } else {
                     logger.warning("Attempted to read a NULL user");
                 }
@@ -87,11 +85,9 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
 
             if (rs.next()) {
                 user = userModelMapper.parseFromResultSet(rs);
-                logger.info(String.format("[FETCHED USER] id: %d | username: %s | email: %s | role: %s",
+                logger.info(String.format("[FETCHED USER] id: %d | username: %s",
                         user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole()));
+                        user.getUsername()));
             } else {
                 logger.warning("There's no user by the id (" + id[0] + ")");
             }
@@ -120,11 +116,9 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
 
             if (rs.next()) {
                 user = userModelMapper.parseFromResultSet(rs);
-                logger.info(String.format("[FETCHED USER] id: %d | username: %s | email: %s | role: %s",
+                logger.info(String.format("[FETCHED USER] id: %d | username: %s",
                         user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole()));
+                        user.getUsername()));
             } else {
                 logger.warning("There's no user by the username (" + username + ")");
             }
@@ -181,10 +175,8 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
         try {
             Statement st = connection.createStatement();
             // It can only register regular users, the default value for the role column
-            st.executeUpdate(String.format("INSERT INTO users(username, email, password) VALUES ('%s', '%s', '%s')",
-                    instance.getUsername(),
-                    instance.getEmail(),
-                    instance.getPassword()));
+            st.executeUpdate(String.format("INSERT INTO users(username) VALUES ('%s')",
+                    instance.getUsername()));
             st.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -211,11 +203,9 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
             }
         }
 
-        logger.info(String.format("[NEW USER CREATED] id: %d | username: %s | email: %s | role: %s",
+        logger.info(String.format("[NEW USER CREATED] id: %d | username: %s",
                 newId[0],
-                instance.getUsername(),
-                instance.getEmail(),
-                instance.getRole()));
+                instance.getUsername()));
 
         return newId;
     }
@@ -244,21 +234,17 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
         try {
             Statement st = connection.createStatement();
             // Doesn't update the role of the user
-            st.executeUpdate(String.format("UPDATE users SET username = '%s', email = '%s', password = '%s' WHERE id = %d",
+            st.executeUpdate(String.format("UPDATE users SET username = '%s' WHERE id = %d",
                     instance.getUsername(),
-                    instance.getEmail(),
-                    instance.getPassword(),
                     instance.getId()));
 
             if (isAtomic) connection.commit();
             updateSuccessful = true;
             st.close();
 
-            logger.info(String.format("[USER UPDATED] id: %d | username: %s | email: %s | role: %s",
+            logger.info(String.format("[USER UPDATED] id: %d | username: %s",
                     instance.getId(),
-                    instance.getUsername(),
-                    instance.getEmail(),
-                    instance.getRole()));
+                    instance.getUsername()));
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             if (isAtomic) {

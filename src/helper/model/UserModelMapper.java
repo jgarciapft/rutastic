@@ -25,12 +25,8 @@ public class UserModelMapper implements ModelMapper<User> {
 
             if (queryParams.containsKey("id"))
                 user.setId(Long.parseLong(queryParams.get("id")[0]));
-            if (queryParams.containsKey("email"))
-                user.setEmail(queryParams.get("email")[0].trim());
             if (queryParams.containsKey("usuario"))
                 user.setUsername(queryParams.get("usuario")[0].trim());
-            if (queryParams.containsKey("password"))
-                user.setPassword(queryParams.get("password")[0].trim());
         }
 
         return user;
@@ -59,18 +55,6 @@ public class UserModelMapper implements ModelMapper<User> {
         }
         try {
             user.setUsername(rs.getString("username"));
-        } catch (SQLException ignored) {
-        }
-        try {
-            user.setEmail(rs.getString("email"));
-        } catch (SQLException ignored) {
-        }
-        try {
-            user.setPassword(rs.getString("password"));
-        } catch (SQLException ignored) {
-        }
-        try {
-            user.setRole(rs.getString("role"));
         } catch (SQLException ignored) {
         }
 
