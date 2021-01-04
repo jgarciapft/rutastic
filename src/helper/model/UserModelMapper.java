@@ -23,8 +23,6 @@ public class UserModelMapper implements ModelMapper<User> {
         if (queryParams != null && !queryParams.isEmpty()) {
             user = new User();
 
-            if (queryParams.containsKey("id"))
-                user.setId(Long.parseLong(queryParams.get("id")[0]));
             if (queryParams.containsKey("usuario"))
                 user.setUsername(queryParams.get("usuario")[0].trim());
         }
@@ -49,10 +47,6 @@ public class UserModelMapper implements ModelMapper<User> {
 
         User user = new User();
 
-        try {
-            user.setId(rs.getLong("id"));
-        } catch (SQLException ignored) {
-        }
         try {
             user.setUsername(rs.getString("username"));
         } catch (SQLException ignored) {

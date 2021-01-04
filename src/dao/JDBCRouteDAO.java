@@ -57,7 +57,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
                 currentRoute = routeModelMapper.parseFromResultSet(rs);
                 if (currentRoute != null) {
                     allRoutes.add(currentRoute);
-                    logger.info(String.format("[Fetched route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+                    logger.info(String.format("[Fetched route] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                             currentRoute.getId(),
                             currentRoute.getCreatedByUser(),
                             currentRoute.getTitle(),
@@ -97,7 +97,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
 
             if (rs.next()) {
                 route = routeModelMapper.parseFromResultSet(rs);
-                logger.info(String.format("[Fetched route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+                logger.info(String.format("[Fetched route] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                         route.getId(),
                         route.getCreatedByUser(),
                         route.getTitle(),
@@ -160,7 +160,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
         try {
             Statement st = connection.createStatement();
             st.executeUpdate(String.format("INSERT INTO routes(created_by_user, title, description, distance, duration, elevation, skill_level)" +
-                            " VALUES (%d, '%s', '%s', %d, %d, %d, '%s')",
+                            " VALUES ('%s', '%s', '%s', %d, %d, %d, '%s')",
                     instance.getCreatedByUser(),
                     instance.getTitle(),
                     instance.getDescription(),
@@ -205,7 +205,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
             throwables.printStackTrace();
         }
 
-        logger.info(String.format("[NEW ROUTE CREATED] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+        logger.info(String.format("[NEW ROUTE CREATED] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                 newId[0],
                 instance.getCreatedByUser(),
                 instance.getTitle(),
@@ -272,7 +272,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
 
             st.close();
 
-            logger.info(String.format("[ROUTE UPDATED] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+            logger.info(String.format("[ROUTE UPDATED] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                     instance.getId(),
                     instance.getCreatedByUser(),
                     instance.getTitle(),
@@ -352,7 +352,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
                 currentRoute = routeModelMapper.parseFromResultSet(rs);
                 if (currentRoute != null) {
                     topMonthlyRoutes.add(currentRoute);
-                    logger.info(String.format("[Fetched top monthly route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+                    logger.info(String.format("[Fetched top monthly route] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                             currentRoute.getId(),
                             currentRoute.getCreatedByUser(),
                             currentRoute.getTitle(),
@@ -392,7 +392,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
                 currentRoute = routeModelMapper.parseFromResultSet(rs);
                 if (currentRoute != null) {
                     topWeeklyRoutes.add(currentRoute);
-                    logger.info(String.format("[Fetched top weekly route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+                    logger.info(String.format("[Fetched top weekly route] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                             currentRoute.getId(),
                             currentRoute.getCreatedByUser(),
                             currentRoute.getTitle(),
@@ -436,7 +436,7 @@ public class JDBCRouteDAO implements RouteDAO, RouteDAOImplJDBC {
                     currentRoute = routeModelMapper.parseFromResultSet(rs);
                     if (currentRoute != null) {
                         filteredRoutes.add(currentRoute);
-                        logger.info(String.format("[Filtered route] id: %d | created by: %d | title: %s | creation date: %s | kudos: %d | categories: %s",
+                        logger.info(String.format("[Filtered route] id: %d | created by: %s | title: %s | creation date: %s | kudos: %d | categories: %s",
                                 currentRoute.getId(),
                                 currentRoute.getCreatedByUser(),
                                 currentRoute.getTitle(),

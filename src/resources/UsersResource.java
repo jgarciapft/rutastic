@@ -37,10 +37,6 @@ public class UsersResource {
 
         List<User> allUsers = userDAO.getAll(); // Get all users
 
-        // Clear all personal info, just leave the username
-
-        allUsers.forEach(user -> user.setId(0));
-
         logger.info("[REST] Retrieving all users, sending only usernames");
 
         return allUsers;
@@ -150,7 +146,7 @@ public class UsersResource {
 
                 // Try deleting the requested user
 
-                boolean deletionSuccessful = userDAO.deleteById(registeredUser.getId());
+                boolean deletionSuccessful = userDAO.deleteByUsername(true, registeredUser.getUsername());
 
                 if (deletionSuccessful) {
                     logger.info("[REST] DELETED THE USER WITH USERNAME (" + username + ")");

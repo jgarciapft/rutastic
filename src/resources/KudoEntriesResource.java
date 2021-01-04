@@ -4,7 +4,6 @@ import dao.KudoEntryDAO;
 import dao.factories.DAOAbstractFactory;
 import dao.implementations.DAOImplJDBC;
 import model.KudoEntry;
-import model.Route;
 import model.User;
 
 import javax.servlet.ServletContext;
@@ -30,25 +29,20 @@ public class KudoEntriesResource {
     UriInfo uriInfo;
 
     @GET
-    @Path("/{userId : [0-9]+}")
+    @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<KudoEntry> getUserKudoEntriesJSON(
-            @PathParam("userId") long userId, @Context HttpServletRequest req) {
+            @PathParam("username") String username, @Context HttpServletRequest req) {
 
         KudoEntryDAO kudoEntryDAO = DAOAbstractFactory.get().impl(DAOImplJDBC.class).forModel(KudoEntry.class);
         HttpSession session = req.getSession();
 
-        // Validate the requested user ID
-
-        if (!User.validateID(userId))
-            throw new WebApplicationException("ID de ruta inválido", Response.Status.BAD_REQUEST);
-
         // AUTHORISATION FILTER. The logged user can only retrieve his kudo entries
 
         User loggedUser = (User) session.getAttribute("user");
-        if (loggedUser.getId() == userId) {
-            logger.info("[REST] Serving kudo entries by user with ID (" + userId + ")");
-            return kudoEntryDAO.getAllByUser(userId); // Return the collection of kudo entries for the requested user
+        if (loggedUser.getUsername().equals(username)) {
+            logger.info("[REST] Serving kudo entries by user with ID (" + username + ")");
+            return kudoEntryDAO.getAllByUser(username); // Return the collection of kudo entries for the requested user
         } else { // Insufficient privileges
             throw new WebApplicationException("Su usario no tiene permisos para recuperar las entradas kudo del usuario solicitado",
                     Response.Status.UNAUTHORIZED);
@@ -56,25 +50,20 @@ public class KudoEntriesResource {
     }
 
     @GET
-    @Path("/{userId : [0-9]+}/{routeId : [0-9]+}")
+    @Path("/{username}/{routeId : [0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     public KudoEntry getUserKudoEntryForRouteJSON(
-            @PathParam("userId") long userId, @PathParam("routeId") long routeId, @Context HttpServletRequest req) {
+            @PathParam("username") String username, @PathParam("routeId") long routeId, @Context HttpServletRequest req) {
 
         KudoEntryDAO kudoEntryDAO = DAOAbstractFactory.get().impl(DAOImplJDBC.class).forModel(KudoEntry.class);
         HttpSession session = req.getSession();
 
-        // Validate the requested user and route IDs
-
-        if (!User.validateID(userId) || !Route.validateID(routeId))
-            throw new WebApplicationException("ID de ruta inválido", Response.Status.BAD_REQUEST);
-
         // AUTHORISATION FILTER. The logged user can only retrieve his kudo entries
 
         User loggedUser = (User) session.getAttribute("user");
-        if (loggedUser.getId() == userId) {
-            logger.info("[REST] Serving kudo entry by user with ID (" + userId + ") to route with ID (" + routeId + ")");
-            return kudoEntryDAO.getById(userId, routeId); // Return the kudo entry by the requested user to the requested route
+        if (loggedUser.getUsername().equals(username)) {
+            logger.info("[REST] Serving kudo entry by user with ID (" + username + ") to route with ID (" + routeId + ")");
+            return kudoEntryDAO.getByPKey(username, routeId); // Return the kudo entry by the requested user to the requested route
         } else { // Insufficient privileges
             throw new WebApplicationException("Su usario no tiene permisos para recuperar las entradas kudo del usuario solicitado",
                     Response.Status.UNAUTHORIZED);

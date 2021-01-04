@@ -1,7 +1,6 @@
 package routefilter;
 
 import model.Route;
-import model.User;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -204,16 +203,14 @@ public class SQLRouteFilterBuilder implements RouteFilterBuilder<SQLRouteFilter>
     }
 
     /**
-     * Search only for routes that were created by a specific user identifies by his id
+     * Search only for routes that were created by a specific user identifies by his username
      *
-     * @param userId The ID of the user
+     * @param username The username of the user
      * @return This builder
      */
-    public SQLRouteFilterBuilder byUser(long userId) {
-        // Check if the user ID is valid
-        if (!User.validateID(userId)) return this;
+    public SQLRouteFilterBuilder byUser(String username) {
 
-        whereConstraints.add("created_by_user = " + userId);
+        whereConstraints.add("created_by_user = '" + username + "'");
 
         return this;
     }

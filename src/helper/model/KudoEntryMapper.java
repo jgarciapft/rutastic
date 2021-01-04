@@ -38,7 +38,7 @@ public class KudoEntryMapper implements ModelMapper<KudoEntry> {
         KudoEntry kudoEntry = new KudoEntry();
 
         try {
-            kudoEntry.setUser(rs.getLong("user"));
+            kudoEntry.setUser(rs.getString("user"));
         } catch (SQLException ignored) {
         }
         try {

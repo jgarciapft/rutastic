@@ -14,8 +14,9 @@ public class Route implements Serializable {
 
     public static final String CATEGORY_SEPARATOR = ", ";
     private static final long SerialVersionUID = 1L;
+
     private long id;
-    private long createdByUser;
+    private String createdByUser;
     private String title;
     private String description;
     private int distance;
@@ -49,11 +50,11 @@ public class Route implements Serializable {
         this.id = id;
     }
 
-    public long getCreatedByUser() {
+    public String getCreatedByUser() {
         return createdByUser;
     }
 
-    public void setCreatedByUser(long createdByUser) {
+    public void setCreatedByUser(String createdByUser) {
         this.createdByUser = createdByUser;
     }
 

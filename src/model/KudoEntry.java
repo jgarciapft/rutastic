@@ -9,7 +9,7 @@ public class KudoEntry implements Serializable {
 
     private static final long SerialVersionUID = 1L;
 
-    private long user;
+    private String user;
     private long route;
     private int modifier;
     private long submissionDate;
@@ -17,11 +17,11 @@ public class KudoEntry implements Serializable {
     public KudoEntry() {
     }
 
-    public long getUser() {
+    public String getUser() {
         return user;
     }
 
-    public void setUser(long user) {
+    public void setUser(String user) {
         this.user = user;
     }
 

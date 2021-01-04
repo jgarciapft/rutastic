@@ -35,4 +35,6 @@ public interface UserDAO extends DAO<User> {
      */
     List<UserStatistic> getTopUsersByAvgKudos();
 
+    boolean deleteByUsername(boolean isAtomic, String username);
+
 }

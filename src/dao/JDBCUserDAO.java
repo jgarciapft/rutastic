@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -49,8 +48,7 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
                 currentUser = userModelMapper.parseFromResultSet(rs);
                 if (currentUser != null) {
                     allUsers.add(currentUser);
-                    logger.info(String.format("[FETCHED USER] id: %d | username: %s",
-                            currentUser.getId(),
+                    logger.info(String.format("[FETCHED USER] username: %s",
                             currentUser.getUsername()));
                 } else {
                     logger.warning("Attempted to read a NULL user");
@@ -66,38 +64,11 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException On call with wrong number of identifiers
+     * @throws UnsupportedOperationException Not supported. See getByUsername()
      */
     @Override
     public User getById(long... id) {
-        if (id.length != 1) throw new IllegalArgumentException("Wrong number of identifiers. Expected 1");
-
-        if (!dependenciesConfigured()) return null;
-
-        User user = null;
-        ModelMapper<User> userModelMapper = ModelMapperFactory.get().forModel(User.class);
-
-        try {
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM users WHERE id = " + id[0]);
-
-            if (rs.next()) {
-                user = userModelMapper.parseFromResultSet(rs);
-                logger.info(String.format("[FETCHED USER] id: %d | username: %s",
-                        user.getId(),
-                        user.getUsername()));
-            } else {
-                logger.warning("There's no user by the id (" + id[0] + ")");
-            }
-
-            st.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        return user;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -116,8 +87,7 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
 
             if (rs.next()) {
                 user = userModelMapper.parseFromResultSet(rs);
-                logger.info(String.format("[FETCHED USER] id: %d | username: %s",
-                        user.getId(),
+                logger.info(String.format("[FETCHED USER] username: %s",
                         user.getUsername()));
             } else {
                 logger.warning("There's no user by the username (" + username + ")");
@@ -146,31 +116,9 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
      */
     @Override
     public long[] add(User instance, boolean isAtomic) {
-        long lastId, SQLERROR = -1L;
-        long[] newId = new long[1];
+        long SQLERROR = -1L;
 
         if (!dependenciesConfigured()) return new long[]{SQLERROR};
-
-        Function<Connection, Long> queryLatestId = connection -> {
-            try {
-                Statement st = connection.createStatement();
-                ResultSet rs = st.executeQuery("SELECT id FROM users ORDER BY id DESC LIMIT 1");
-
-                if (rs.next()) {
-                    long id = rs.getLong("id");
-                    st.close();
-                    return id;
-                }
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-
-            return SQLERROR;
-        };
-
-        lastId = queryLatestId.apply(connection);
-
-        if (lastId == SQLERROR) return new long[]{SQLERROR};
 
         try {
             Statement st = connection.createStatement();
@@ -180,16 +128,11 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
             st.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-        }
-
-        newId[0] = queryLatestId.apply(connection);
-
-        if (newId[0] == SQLERROR || newId[0] <= lastId) {
             if (isAtomic) {
                 try {
                     connection.rollback();
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
             return new long[]{SQLERROR};
@@ -203,60 +146,26 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
             }
         }
 
-        logger.info(String.format("[NEW USER CREATED] id: %d | username: %s",
-                newId[0],
+        logger.info(String.format("[NEW USER CREATED] username: %s",
                 instance.getUsername()));
 
-        return newId;
+        return new long[]{0};
     }
 
     /**
-     * {@inheritDoc}
-     * <p></p>
-     * This method can't update the role of an user
+     * @throws UnsupportedOperationException Not supported
      */
     @Override
     public boolean save(User instance) {
-        return save(instance, true);
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
-     * <p></p>
-     * This method can't update the role of an user
+     * @throws UnsupportedOperationException Not supported
      */
     @Override
     public boolean save(User instance, boolean isAtomic) {
-        if (!dependenciesConfigured()) return false;
-
-        boolean updateSuccessful = false;
-
-        try {
-            Statement st = connection.createStatement();
-            // Doesn't update the role of the user
-            st.executeUpdate(String.format("UPDATE users SET username = '%s' WHERE id = %d",
-                    instance.getUsername(),
-                    instance.getId()));
-
-            if (isAtomic) connection.commit();
-            updateSuccessful = true;
-            st.close();
-
-            logger.info(String.format("[USER UPDATED] id: %d | username: %s",
-                    instance.getId(),
-                    instance.getUsername()));
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            if (isAtomic) {
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return updateSuccessful;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -291,6 +200,35 @@ public class JDBCUserDAO implements UserDAO, DAOImplJDBC {
             st.close();
 
             logger.info("[user with the id (" + id[0] + ") has been deleted]");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            if (isAtomic) {
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return deletionSuccessful;
+    }
+
+    @Override
+    public boolean deleteByUsername(boolean isAtomic, String username) {
+        if (!dependenciesConfigured()) return false;
+
+        boolean deletionSuccessful = false;
+
+        try {
+            Statement st = connection.createStatement();
+            st.executeUpdate("DELETE FROM users WHERE username = '" + username + "'");
+
+            if (isAtomic) connection.commit();
+            deletionSuccessful = true;
+            st.close();
+
+            logger.info("[user with the username (" + username + ") has been deleted]");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             if (isAtomic) {

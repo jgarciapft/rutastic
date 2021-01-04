@@ -1,12 +1,10 @@
 package dao;
 
-import dao.factories.DAOAbstractFactory;
 import dao.implementations.DAOImplJDBC;
 import helper.DateTimeUtils;
 import helper.model.ModelMapper;
 import helper.model.ModelMapperFactory;
 import model.KudoEntry;
-import model.User;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -56,47 +54,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                 currentEntry = kEntryModelMapper.parseFromResultSet(rs);
                 if (currentEntry != null) {
                     allEntries.add(currentEntry);
-                    logger.info(String.format("[FETCHED Kudo Entry] user: %d | route: %s | modifier: %d | submission date: %s",
-                            currentEntry.getUser(),
-                            currentEntry.getRoute(),
-                            currentEntry.getModifier(),
-                            DateTimeUtils.formatEpochTime(currentEntry.getSubmissionDate(),
-                                    DateTimeUtils.TimeResolution.SECONDS)));
-                } else {
-                    logger.warning("Attempted to read a NULL kudo entry");
-                }
-            }
-
-            st.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        return allEntries;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<KudoEntry> getAllByUser(long userId) {
-        if (!dependenciesConfigured()) return null;
-
-        logger.info("FETCHING ALL KUDO ENTRIES FOR USERID (" + userId + ")");
-
-        KudoEntry currentEntry;
-        List<KudoEntry> allEntries = new ArrayList<>();
-        ModelMapper<KudoEntry> kEntryModelMapper = ModelMapperFactory.get().forModel(KudoEntry.class);
-
-        try {
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry_unixtime WHERE user = " + userId);
-
-            while (rs.next()) {
-                currentEntry = kEntryModelMapper.parseFromResultSet(rs);
-                if (currentEntry != null) {
-                    allEntries.add(currentEntry);
-                    logger.info(String.format("[FETCHED Kudo Entry] user: %d | route: %s | modifier: %d | submission date: %s",
+                    logger.info(String.format("[FETCHED Kudo Entry] user: %s | route: %s | modifier: %d | submission date: %s",
                             currentEntry.getUser(),
                             currentEntry.getRoute(),
                             currentEntry.getModifier(),
@@ -124,11 +82,37 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
 
         logger.info("FETCHING ALL KUDO ENTRIES FOR USERNAME (" + username + ")");
 
-        UserDAO userDAO = DAOAbstractFactory.get().impl(DAOImplJDBC.class).forModel(User.class);
-        User user = userDAO.getByUsername(username);
+        KudoEntry currentEntry;
+        List<KudoEntry> allEntries = new ArrayList<>();
+        ModelMapper<KudoEntry> kEntryModelMapper = ModelMapperFactory.get().forModel(KudoEntry.class);
 
-        return getAllByUser(user.getId());
+        try {
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM routekudosregistry_unixtime WHERE user = '" + username + "'");
+
+            while (rs.next()) {
+                currentEntry = kEntryModelMapper.parseFromResultSet(rs);
+                if (currentEntry != null) {
+                    allEntries.add(currentEntry);
+                    logger.info(String.format("[FETCHED Kudo Entry] user: %s | route: %d | modifier: %d | submission date: %s",
+                            currentEntry.getUser(),
+                            currentEntry.getRoute(),
+                            currentEntry.getModifier(),
+                            DateTimeUtils.formatEpochTime(currentEntry.getSubmissionDate(),
+                                    DateTimeUtils.TimeResolution.SECONDS)));
+                } else {
+                    logger.warning("Attempted to read a NULL kudo entry");
+                }
+            }
+
+            st.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return allEntries;
     }
+
 
     /**
      * {@inheritDoc}
@@ -151,7 +135,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                 currentEntry = kEntryModelMapper.parseFromResultSet(rs);
                 if (currentEntry != null) {
                     allEntries.add(currentEntry);
-                    logger.info(String.format("[FETCHED Kudo Entry] user: %d | route: %s | modifier: %d | submission date: %s",
+                    logger.info(String.format("[FETCHED Kudo Entry] user: %s | route: %s | modifier: %d | submission date: %s",
                             currentEntry.getUser(),
                             currentEntry.getRoute(),
                             currentEntry.getModifier(),
@@ -171,14 +155,15 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException On call with wrong number of identifiers
+     * @throws UnsupportedOperationException Not supported. Use getByPKey()
      */
     @Override
     public KudoEntry getById(long... id) {
-        if (id.length != 2) throw new IllegalArgumentException("Wrong number of identifiers. Expected 2");
+        throw new UnsupportedOperationException();
+    }
 
+    @Override
+    public KudoEntry getByPKey(String username, long routeId) {
         if (!dependenciesConfigured()) return null;
 
         KudoEntry kudoEntry = null;
@@ -187,18 +172,18 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
         try {
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(String.format("SELECT * FROM routekudosregistry_unixtime " +
-                    "WHERE user = %d AND route = %d", id[0], id[1]));
+                    "WHERE user = '%s' AND route = %d", username, routeId));
 
             if (rs.next()) {
                 kudoEntry = kEntryModelMapper.parseFromResultSet(rs);
-                logger.info(String.format("[FETCHED Kudo Entry] user: %d | route: %s | modifier: %d | submission date: %s",
+                logger.info(String.format("[FETCHED Kudo Entry] user: %s | route: %s | modifier: %d | submission date: %s",
                         kudoEntry.getUser(),
                         kudoEntry.getRoute(),
                         kudoEntry.getModifier(),
                         DateTimeUtils.formatEpochTime(kudoEntry.getSubmissionDate(),
                                 DateTimeUtils.TimeResolution.SECONDS)));
             } else {
-                logger.warning("There's no Kudo entry by the id (" + id[0] + ")");
+                logger.warning("There's no Kudo entry by the id (" + username + "," + routeId + ")");
             }
 
             st.close();
@@ -210,26 +195,31 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
     }
 
     /**
-     * {@inheritDoc}
+     * @throws UnsupportedOperationException Not supported. Use add2()
      */
     @Override
     public long[] add(KudoEntry instance) {
-        return add(instance, true);
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
+     * @throws UnsupportedOperationException Not supported. Use add2()
      */
     @Override
     public long[] add(KudoEntry instance, boolean isAtomic) {
-        long SQLERROR = -1L;
-        long[] idOfAddedInstance = {instance.getUser(), instance.getRoute()}; // Copy provided id to return on success
+        throw new UnsupportedOperationException();
+    }
 
-        if (!dependenciesConfigured()) return new long[]{SQLERROR};
+    @Override
+    public Object[] add2(KudoEntry instance, boolean isAtomic) {
+        long SQLERROR = -1L;
+        Object[] idOfAddedInstance = {instance.getUser(), instance.getRoute()}; // Copy provided id to return on success
+
+        if (!dependenciesConfigured()) return new Object[]{SQLERROR};
 
         try {
             Statement st = connection.createStatement();
-            st.executeUpdate(String.format("INSERT INTO routekudosregistry(user, route, modifier) VALUES (%d, %d, %d)",
+            st.executeUpdate(String.format("INSERT INTO routekudosregistry(user, route, modifier) VALUES ('%s', %d, %d)",
                     instance.getUser(),
                     instance.getRoute(),
                     instance.getModifier()));
@@ -237,7 +227,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
             if (isAtomic) connection.commit();
             st.close();
 
-            logger.info(String.format("[NEW KUDO ENTRY CREATED] user: %d | route: %s | modifier: %d",
+            logger.info(String.format("[NEW KUDO ENTRY CREATED] user: %s | route: %s | modifier: %d",
                     instance.getUser(),
                     instance.getRoute(),
                     instance.getModifier()));
@@ -250,7 +240,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
                     e.printStackTrace();
                 }
             }
-            idOfAddedInstance = new long[]{SQLERROR}; // Set error status
+            idOfAddedInstance = new Object[]{SQLERROR}; // Set error status
         }
 
         return idOfAddedInstance;
@@ -277,7 +267,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
 
         try {
             Statement st = connection.createStatement();
-            st.executeUpdate(String.format("UPDATE routekudosregistry SET modifier = %d WHERE user = %d AND route = %d",
+            st.executeUpdate(String.format("UPDATE routekudosregistry SET modifier = %d WHERE user = '%s' AND route = %d",
                     instance.getModifier(),
                     instance.getUser(),
                     instance.getRoute()));
@@ -286,7 +276,7 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
             updateSuccessful = true;
             st.close();
 
-            logger.info(String.format("[KUDO ENTRY UPDATED] user: %d | route: %s | modifier: %d",
+            logger.info(String.format("[KUDO ENTRY UPDATED] user: %s | route: %s | modifier: %d",
                     instance.getUser(),
                     instance.getRoute(),
                     instance.getModifier()));
@@ -305,37 +295,36 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException On call with wrong number of identifiers
+     * @throws UnsupportedOperationException Not supportes. See deleteByPKey()
      */
     @Override
     public boolean deleteById(long... id) {
-        return deleteById(true, id);
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @throws IllegalArgumentException On call with wrong number of identifiers
      */
     @Override
     public boolean deleteById(boolean isAtomic, long... id) {
-        if (id.length != 2) throw new IllegalArgumentException("Wrong number of identifiers. Expected 2");
+        throw new UnsupportedOperationException();
+    }
 
+    @Override
+    public boolean deleteByPKey(boolean isAtomic, String username, long routeId) {
         if (!dependenciesConfigured()) return false;
 
         boolean deletionSuccessful = false;
 
         try {
             Statement st = connection.createStatement();
-            st.executeUpdate(String.format("DELETE FROM routekudosregistry WHERE user = %d AND route = %d", id[0], id[1]));
+            st.executeUpdate(String.format("DELETE FROM routekudosregistry WHERE user = '%s' AND route = %d", username, routeId));
 
             if (isAtomic) connection.commit();
             deletionSuccessful = true;
             st.close();
 
-            logger.info("[Kudo entry with the id (" + id[0] + ", " + id[1] + ") has been deleted]");
+            logger.info("[Kudo entry with the id (" + username + ", " + routeId + ") has been deleted]");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             if (isAtomic) {
@@ -354,8 +343,8 @@ public class JDBCKudoEntryDAO implements KudoEntryDAO, DAOImplJDBC {
      * {@inheritDoc}
      */
     @Override
-    public Map<Long, KudoEntry> getRouteIDMappedKudoEntriesForUser(long userId) {
-        List<KudoEntry> kudoEntries = getAllByUser(userId);
+    public Map<Long, KudoEntry> getRouteIDMappedKudoEntriesForUser(String username) {
+        List<KudoEntry> kudoEntries = getAllByUser(username);
 
         if (kudoEntries == null) return null; // Check any kudo entry could be retrieved
 

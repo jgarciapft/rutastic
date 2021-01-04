@@ -71,7 +71,7 @@ public class RouteModelMapper implements ModelMapper<Route> {
         } catch (SQLException ignored) {
         }
         try {
-            route.setCreatedByUser(rs.getLong("created_by_user"));
+            route.setCreatedByUser(rs.getString("created_by_user"));
         } catch (SQLException ignored) {
         }
         try {

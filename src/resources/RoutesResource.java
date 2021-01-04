@@ -118,7 +118,7 @@ public class RoutesResource {
         if (hideBlockedRoutes)
             sqlRouteFilterBuilder.hideBlockedRoutes();
         if (session.getAttribute("user") != null && showOnlyMyRoutes)
-            sqlRouteFilterBuilder.byUser(((User) session.getAttribute("user")).getId());
+            sqlRouteFilterBuilder.byUser(((User) session.getAttribute("user")).getUsername());
         switch (skillLevel) {
             case 1:
                 sqlRouteFilterBuilder.ofSkillLevel(RouteSkillLevel.EASY);
@@ -133,7 +133,7 @@ public class RoutesResource {
         if (filterByUsername != null && !filterByUsername.trim().isEmpty()) {
             User filteredUserModel = userDAO.getByUsername(filterByUsername.trim());
             if (filteredUserModel != null)
-                sqlRouteFilterBuilder.byUser(filteredUserModel.getId());
+                sqlRouteFilterBuilder.byUser(filteredUserModel.getUsername());
         }
         sqlRouteFilterBuilder.ofDistanceRange(minDistance, maxDistance);
 
@@ -315,7 +315,7 @@ public class RoutesResource {
 
         User loggedUser = (User) session.getAttribute("user");
 
-        newRoute.setCreatedByUser(loggedUser.getId()); // Set the author of this route
+        newRoute.setCreatedByUser(loggedUser.getUsername()); // Set the author of this route
 
         // Try creating the new route
 
@@ -362,7 +362,7 @@ public class RoutesResource {
             // AUTHORISATION FILER. Only the author of the route can block or unblock it
 
             User loggedUser = (User) session.getAttribute("user");
-            if (loggedUser.getId() == requestedRoute.getCreatedByUser()) {
+            if (loggedUser.getUsername().equals(requestedRoute.getCreatedByUser())) {
 
                 /*
                  * Check the given action against the current route status. If the route is blocked and the
@@ -433,7 +433,7 @@ public class RoutesResource {
         if (requestedRoute != null) {
 
             User loggedUser = (User) session.getAttribute("user");
-            KudoEntry matchingKudoEntry = kudoEntryDAO.getById(loggedUser.getId(), routeId);
+            KudoEntry matchingKudoEntry = kudoEntryDAO.getByPKey(loggedUser.getUsername(), routeId);
 
             // Check if the user has already given a kudo or not to the route, if not make a new kudo entry
 
@@ -449,7 +449,7 @@ public class RoutesResource {
                  */
 
                 if (matchingKudoEntry.getModifier() == equivalentKudoModifier) { // 1. and 4.
-                    kudoUpdateSuccessful = kudoEntryDAO.deleteById(loggedUser.getId(), routeId);
+                    kudoUpdateSuccessful = kudoEntryDAO.deleteByPKey(true, loggedUser.getUsername(), routeId);
                 } else if (matchingKudoEntry.getModifier() == 1 && equivalentKudoModifier == -1) { // 2.
                     matchingKudoEntry.setModifier(-1);
                     kudoUpdateSuccessful = kudoEntryDAO.save(matchingKudoEntry);
@@ -462,10 +462,10 @@ public class RoutesResource {
                 // User never gave any kudo to this route, create a new entry
 
                 KudoEntry newKudoEntry = new KudoEntry();
-                newKudoEntry.setUser(loggedUser.getId());
+                newKudoEntry.setUser(loggedUser.getUsername());
                 newKudoEntry.setRoute(routeId);
                 newKudoEntry.setModifier(equivalentKudoModifier);
-                kudoUpdateSuccessful = kudoEntryDAO.add(newKudoEntry)[0] != -1;
+                kudoUpdateSuccessful = (long) kudoEntryDAO.add2(newKudoEntry, true)[0] != -1;
             }
 
             if (kudoUpdateSuccessful) {
@@ -517,7 +517,7 @@ public class RoutesResource {
             // AUTHORISATION FILTER. Only the author of the route can update it
 
             User loggedUser = (User) session.getAttribute("user");
-            if (loggedUser.getId() == storedRoute.getCreatedByUser()) {
+            if (loggedUser.getUsername().equals(storedRoute.getCreatedByUser())) {
 
                 // Try updating the requested route
 
@@ -560,7 +560,7 @@ public class RoutesResource {
             // AUTHORISATION FILTER. Only the author of the route can delete it
 
             User loggedUser = (User) session.getAttribute("user");
-            if (loggedUser.getId() == routeBeingDeleted.getCreatedByUser()) {
+            if (loggedUser.getUsername().equals(routeBeingDeleted.getCreatedByUser())) {
 
                 // Try deleting the requested route
 
