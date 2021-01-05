@@ -4,22 +4,20 @@ angular.module('Rutastic')
 
         let headerVM = this;
 
-        headerVM.loggedUser = {}
+        headerVM.loggedUser = undefined; // Currently logged user
 
         headerVM.functions = {
-            /**
-             * Retrieve the currently logged user within this web app
-             */
-            readLoggedUser: function () {
-                usersFactory
-                    .getLoggedUser()
-                    .then(function () {
-                        headerVM.loggedUser = usersFactory.loggedUser;
-                    })
+            // Sign out the current user
+            signOut: function () {
+                usersFactory.doSignOut();
             }
         }
 
-        // On controller instantiation read logged user and maintain it while the user is using this app
+        // Observe forever the logged user from the users factory
+        usersFactory.observerCallbacks.push(loggedUserUpdatedCallback);
 
-        headerVM.functions.readLoggedUser();
+        function loggedUserUpdatedCallback() {
+            headerVM.loggedUser =
+                usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username : undefined;
+        }
     }]);

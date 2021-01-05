@@ -4,21 +4,21 @@
             <div class="d-flex justify-content-center align-items-center p-5 error-container"
                  data-ng-show="userVM.loggedUser === undefined">
                 <p class="lead text-dark text-center font-weight-bold">
-                    Para editar este perfil debe <a class="font-weight-bold" href="Login.do">iniciar sesión</a>
+                    Para editar este perfil debe <a class="font-weight-bold" href="#!/Login.do">iniciar sesión</a>
                 </p>
             </div>
             <div class="d-flex justify-content-center align-items-center p-5 error-container"
-                 data-ng-show="userVM.loggedUser.id !== userVM.user.id">
+                 data-ng-show="userVM.loggedUser !== undefined && userVM.loggedUser !== userVM.requestedUser">
                 <p class="lead text-dark text-center font-weight-bold">
                     No tienes permiso para editar este perfil. Prueba a 
-                    <a class="font-weight-bold" href="Login.do">iniciar sesión</a> con una cuenta diferente
+                    <a class="font-weight-bold" href="#!/Login">iniciar sesión</a> con una cuenta diferente
                 </p>
             </div>
             <form class="px-5 pt-5 pb-1"
                   id="form-editar-perfil"
                   method="post"
-                  data-ng-show="userVM.loggedUser !== undefined
-                    && userVM.loggedUser.id === userVM.user.id" data-ng-submit="userVM.functions.submitEditionForm()">
+                  data-ng-show="userVM.loggedUser !== undefined && userVM.loggedUser === userVM.requestedUser"
+                  data-ng-submit="userVM.functions.submitEditionForm()">
                 <h1 class="text-center form-header mb-5 font-weight-bold">Editar perfil</h1>
                 <div class="alert alert-danger mb-5" data-ng-if="userVM.editionErrorMessage.length > 0" role="alert">
                     <span class="font-weight-bold">Error al editar el perfil</span>
@@ -26,31 +26,23 @@
                     <p>{{userVM.editionErrorMessage}}</p>
                 </div>
                 <div class="form-group">
-                    <label for="email-in">Correo electrónico</label>
-                    <input class="form-control"
-                           data-ng-model="userVM.user.email"
-                           id="email-in"
-                           name="email"
-                           required
-                           type="email">
-                </div>
-                <div class="form-group">
                     <label for="usuario-in">Usuario</label>
                     <input class="form-control"
-                           data-ng-model="userVM.user.username"
+                           data-ng-model="userVM.requestedUser"
                            disabled
                            id="usuario-in"
                            name="usuario"
                            type="text">
                 </div>
                 <div class="form-group">
-                    <label for="password-in">Nueva Contraseña<br/>
-                        <span class="label-subtitle">Dejar en blanco para no modificarla</span></label>
+                    <label for="email-in">Nuevo correo electrónico</label>
                     <input class="form-control"
-                           data-ng-model="userVM.user.password"
-                           id="password-in"
-                           name="password"
-                           type="password">
+                           data-ng-model="userVM.newEmail"
+                           placeholder="Actual: {{userVM.originalEmail}}"
+                           id="email-in"
+                           name="email"
+                           required
+                           type="email">
                 </div>
                 <div class="form-group">
                     <button class="btn btn-primary btn-block mt-5 font-weight-bold" type="submit">
@@ -61,16 +53,54 @@
         </div>
         <div class="w-100"></div>
         <div class="col-5 login-clean">
-            <div class="alert alert-danger mb-5 mx-5" data-ng-if="userVM.deletionErrorMessage.length > 0" role="alert">
-                <span class="font-weight-bold">Error al eliminar el perfil</span>
-                <hr>
-                <p>{{userVM.deletionErrorMessage}}</p>
-            </div>
             <form class="px-5 pt-3 pb-5 needs-validation"
-                  data-ng-show="userVM.loggedUser !== undefined && userVM.loggedUser.id === userVM.user.id"
+                  data-ng-show="userVM.loggedUser !== undefined && userVM.loggedUser === userVM.requestedUser"
+                  data-ng-submit="userVM.functions.submitChangePasswordForm()"
+                  id="form-actualizar-pwd"
+                  method="post">
+                <div class="alert alert-danger mb-5" data-ng-if="userVM.passwordChangeErrorMessage.length > 0"
+                     role="alert">
+                    <span class="font-weight-bold">Error al actualizar la contraseña</span>
+                    <hr>
+                    <p>{{userVM.passwordChangeErrorMessage}}</p>
+                </div>
+                <div class="form-group">
+                    <label for="password-original-in">Contraseña actual<br/></label>
+                    <input class="form-control"
+                           data-ng-model="userVM.currentPassword"
+                           id="password-original-in"
+                           name="password"
+                           type="password"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="password-in">Nueva contraseña<br/></label>
+                    <input class="form-control"
+                           data-ng-model="userVM.newPassword"
+                           id="password-in"
+                           name="password"
+                           type="password"
+                           required>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-success btn-block font-weight-bold" type="submit">CAMBIAR CONTRASEÑA
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="w-100"></div>
+        <div class="col-5 login-clean">
+            <form class="px-5 pt-3 pb-5 needs-validation"
+                  data-ng-show="userVM.loggedUser !== undefined && userVM.loggedUser === userVM.requestedUser"
                   data-ng-submit="userVM.functions.submitDeletionForm()"
                   id="form-eliminar-perfil"
                   method="post">
+                <div class="alert alert-danger mb-5" data-ng-if="userVM.deletionErrorMessage.length > 0"
+                     role="alert">
+                    <span class="font-weight-bold">Error al eliminar el perfil</span>
+                    <hr>
+                    <p>{{userVM.deletionErrorMessage}}</p>
+                </div>
                 <div class="form-group">
                     <button class="btn btn-danger btn-block font-weight-bold" type="submit">ELIMINAR PERFIL
                     </button>

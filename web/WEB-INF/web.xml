@@ -26,7 +26,7 @@
   <!-- MySQL DB User password -->
   <context-param>
     <param-name>dbPwd</param-name>
-    <param-value>*</param-value>
+    <param-value>1YeKNSIUNqniOlVtIX8C</param-value>
   </context-param>
 
   <!-- Enable HTTPS connector on port 8443 with SSL for the entire webapp -->
@@ -45,45 +45,7 @@
     <listener-class>listener.WebappInitializer</listener-class>
   </listener>
 
-  <!-- Filters -->
-  <filter>
-    <filter-name>AuthenticationFilter</filter-name>
-    <filter-class>filter.AuthenticationFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>AuthenticationFilter</filter-name>
-    <url-pattern>/rest/*</url-pattern>
-    <dispatcher>REQUEST</dispatcher>
-  </filter-mapping>
-  <filter>
-    <filter-name>LoginRegistrationFilter</filter-name>
-    <filter-class>filter.LoginRegistrationFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>LoginRegistrationFilter</filter-name>
-    <servlet-name>LoginServlet</servlet-name>
-    <dispatcher>REQUEST</dispatcher>
-  </filter-mapping>
-
   <!-- Servlet definitions and mappings -->
-
-  <servlet>
-    <servlet-name>LoginServlet</servlet-name>
-    <servlet-class>controller.LoginServlet</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>LogoutServlet</servlet-name>
-    <servlet-class>controller.LogoutServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/Login.do</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>LogoutServlet</servlet-name>
-    <url-pattern>/Logout.do</url-pattern>
-  </servlet-mapping>
 
   <!-- Jersey REST Services Servlet -->
   <servlet>

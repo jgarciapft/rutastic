@@ -4,7 +4,7 @@ angular.module('Rutastic')
 
             let routeQueryVM = this;
 
-            routeQueryVM.loggedUser = usersFactory.loggedUser
+            routeQueryVM.loggedUser = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username : undefined;
             routeQueryVM.factories = {
                 routeQuery: routeQueryFactory
             }

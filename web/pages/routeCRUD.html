@@ -6,19 +6,19 @@
                 <p class="lead text-dark text-center font-weight-bold">
                     Para {{routeHandlerVM.functions.isCreationForm() ? 'crear una nueva ruta' : 'editar esta ruta'}}
                     debe 
-                    <a class="font-weight-bold" href="Login.do">iniciar sesión</a>
+                    <a class="font-weight-bold" href="#!/Login">iniciar sesión</a>
                 </p>
             </div>
             <div class="d-flex justify-content-center align-items-center p-5 error-container"
                  data-ng-show="routeHandlerVM.loggedUser !== undefined &&
-                                routeHandlerVM.functions.isEditionForm() && routeHandlerVM.loggedUser.id !== routeHandlerVM.route.createdByUser">
+                                routeHandlerVM.functions.isEditionForm() && routeHandlerVM.loggedUser !== routeHandlerVM.route.createdByUser">
                 <p class="lead text-dark text-center font-weight-bold">
                     No tienes permiso para editar esta ruta. Prueba a
-                    <a class="font-weight-bold" href="Login.do">iniciar sesión</a> con una cuenta diferente
+                    <a class="font-weight-bold" href="#!/Login">iniciar sesión</a> con una cuenta diferente
                 </p>
             </div>
             <form class="p-5" data-ng-show="routeHandlerVM.loggedUser !== undefined &&
-                        ((routeHandlerVM.functions.isEditionForm() && routeHandlerVM.loggedUser.id === routeHandlerVM.route.createdByUser)
+                        ((routeHandlerVM.functions.isEditionForm() && routeHandlerVM.loggedUser === routeHandlerVM.route.createdByUser)
                         || routeHandlerVM.functions.isCreationForm())"
                   data-ng-submit="routeHandlerVM.functions.submitRouteForm()"
                   id="form-crear-ruta"
@@ -166,7 +166,7 @@
                 <p>{{routeHandlerVM.deletionErrorMessage}}</p>
             </div>
             <form class="px-5 pb-5 pt-2 needs-validation" data-ng-show="routeHandlerVM.loggedUser !== undefined &&
-                        routeHandlerVM.loggedUser.id === routeHandlerVM.route.createdByUser"
+                        routeHandlerVM.loggedUser === routeHandlerVM.route.createdByUser"
                   data-ng-submit="routeHandlerVM.functions.submitDeletionForm()"
                   id="form-eliminar-ruta"
                   method="post">

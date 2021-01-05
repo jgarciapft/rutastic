@@ -6,6 +6,6 @@ angular.module('Rutastic')
 
         pageStyleVM.functions = {
             hasWhiteBg: stylesFactory.hasWhiteBg,
-            isRegistrationForm: stylesFactory.isRegistrationForm
+            shouldShowNavbar: stylesFactory.shouldShowNavbar
         }
     }]);

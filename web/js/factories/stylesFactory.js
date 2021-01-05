@@ -9,10 +9,10 @@ angular.module('Rutastic')
                 return $location.path().match(/(FiltrarRutas|DetallesRuta)/) !== null;
             },
             /**
-             * @return {boolean} Whether the user is currently at the registration page
+             * @return {boolean} Whether the app should show the navbar based on the current user location
              */
-            isRegistrationForm: function () {
-                return $location.path().match(/Registro/) !== null;
+            shouldShowNavbar: function () {
+                return $location.path().match(/Registro|Verificar|Login/) === null;
             }
         }
     }])

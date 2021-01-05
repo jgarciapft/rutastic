@@ -5,7 +5,7 @@ angular.module('Rutastic')
 
                 let routeDetailsVM = this;
 
-                routeDetailsVM.loggedUser = usersFactory.loggedUser
+                routeDetailsVM.loggedUser = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username : undefined;
                 routeDetailsVM.route = {}
                 routeDetailsVM.kudoEntry = undefined
                 routeDetailsVM.relatedRoutesByDistance = [] // Similar routes to this one by similar distance
@@ -35,7 +35,6 @@ angular.module('Rutastic')
                                     if (routeDetailsVM.loggedUser !== undefined)
                                         routeDetailsVM.functions.readAssociatedKudoEntry();
 
-
                                 }, function (response) {
                                     alert('La ruta solicitada no existe');
                                     console.log(`Error retrieving the route with ID (${$routeParams.ID}) | Status: ${response.status}`);
@@ -58,7 +57,7 @@ angular.module('Rutastic')
                     readAssociatedKudoEntry: function () {
                         if (routeDetailsVM.loggedUser !== undefined) { // Check for a logged user first
                             kudoEntriesFactory
-                                .getKudoEntryOfUserForRoute(routeDetailsVM.loggedUser.id, routeDetailsVM.route.id)
+                                .getKudoEntryOfUserForRoute(routeDetailsVM.loggedUser, routeDetailsVM.route.id)
                                 .then(function (kudoEntry) {
                                     /*
                                      * Check if any entry could be retrieved, other way an empty response may overwrite

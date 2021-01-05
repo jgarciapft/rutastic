@@ -9,13 +9,13 @@ angular.module('Rutastic')
             /**
              * Retrieve all kudo entries associated with an user
              *
-             * @param userId ID of the user
+             * @param username Username of the user
              * @return {HttpPromise|Promise|PromiseLike<T>|Promise<T>} A promise which resolves to the array of
              * kudo entries
              */
-            getKudoEntriesOfUser: function (userId) {
+            getKudoEntriesOfUser: function (username) {
                 return $http
-                    .get(`${restBaseUrl}/${userId}`)
+                    .get(`${restBaseUrl}/${username}`)
                     .then(response => response.data);
             },
             /**
@@ -25,19 +25,19 @@ angular.module('Rutastic')
              * kudo entries
              */
             getKudoEntriesOfLoggedUser: function () {
-                if (usersFactory.loggedUser !== undefined) // Check that there's a logged user first
-                    return kudoEntriesFactory.getKudoEntriesOfUser(usersFactory.loggedUser.id);
+                if (usersFactory.loggedCognitoUser !== undefined) // Check that there's a logged user first
+                    return kudoEntriesFactory.getKudoEntriesOfUser(usersFactory.loggedCognitoUser.username);
             },
             /**
              * Get the kudo entry (if any) associated to an user and a route
              *
-             * @param userId ID of the user
+             * @param username Username of the user
              * @param routeId ID of the route
              * @return {HttpPromise|Promise|PromiseLike<T>|Promise<T>} A promise which resolves to the requested kudo entry
              */
-            getKudoEntryOfUserForRoute: function (userId, routeId) {
+            getKudoEntryOfUserForRoute: function (username, routeId) {
                 return $http
-                    .get(`${restBaseUrl}/${userId}/${routeId}`)
+                    .get(`${restBaseUrl}/${username}/${routeId}`)
                     .then(response => response.data);
             }
         };

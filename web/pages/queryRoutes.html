@@ -29,7 +29,7 @@
                             </div>
                             <p class="font-weight-bold text-truncate my-auto">{{topUser.username}}</p>
                             <p class="text-info my-auto ml-3 user-stat">
-                                <span class="font-weight-bold">{{topUser.stat | number : 0}}</span> top rutas
+                                <span class="font-weight-bold">{{topUser.stat | number: 0}}</span> top rutas
                             </p>
                         </div>
                     </li>
@@ -51,7 +51,7 @@
                             </div>
                             <p class="font-weight-bold text-truncate my-auto">{{topUser.username}}</p>
                             <p class="text-info text-right my-auto ml-3 user-stat">
-                                <span class="font-weight-bold">{{topUser.stat | number : 2}}</span> kd/r
+                                <span class="font-weight-bold">{{topUser.stat | number: 2}}</span> kd/r
                             </p>
                         </div>
                     </li>
@@ -85,21 +85,21 @@
                             <i class="fa fa-clock-o py-2"></i><span class="text-info p-2">Duración</span>
                             <div class="route-data-footer card-footer text-muted text-wrap text-break">
                                 <span class="lead">{{route.duration | minutesFormat}}</span> {{route.duration |
-                                minutesFormatString}}
+                            minutesFormatString}}
                             </div>
                         </div>
                         <div class="card text-center d-inline route-data">
                             <i class="fa fa-flag py-2"></i><span class="text-info p-2">Distancia</span>
                             <div class="route-data-footer card-footer text-muted text-wrap text-break">
                                 <span class="lead">{{route.distance | distanceFormat}}</span> {{route.distance |
-                                distanceFormatString}}
+                            distanceFormatString}}
                             </div>
                         </div>
                         <div class="card text-center d-inline route-data">
                             <i class="fas fa-mountain py-2"></i><span class="text-info p-2">Elevación</span>
                             <div class="route-data-footer card-footer text-muted text-wrap text-break">
                                 <span class="lead">{{route.elevation | distanceFormat}}</span> {{route.elevation |
-                                distanceFormatString}}
+                            distanceFormatString}}
                             </div>
                         </div>
                         <div class="card text-center d-inline route-data">

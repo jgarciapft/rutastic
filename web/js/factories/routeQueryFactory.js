@@ -42,7 +42,7 @@ angular.module('Rutastic')
                         })
                         // If there's a logged user retrieve his kudo entries as well and populate the entries map
                         .then(function () {
-                            if (usersFactory.loggedUser !== undefined) {
+                            if (usersFactory.loggedCognitoUser !== undefined) {
                                 kudoEntriesFactory
                                     .getKudoEntriesOfLoggedUser()
                                     .then(kudoEntries => {

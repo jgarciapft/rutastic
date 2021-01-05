@@ -3,7 +3,7 @@ angular.module('Rutastic')
         ['$location', 'routeQueryFactory', 'usersFactory', function ($location, routeQueryFactory, usersFactory) {
             let routeQueryWidgetVM = this;
 
-            routeQueryWidgetVM.loggedUser = usersFactory.loggedUser
+            routeQueryWidgetVM.loggedUser = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username : undefined;
             routeQueryWidgetVM.allUsernames = []
             routeQueryWidgetVM.routeQuery = routeQueryFactory.latestRouteQuery // Initialize with the latest route query
 

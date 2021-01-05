@@ -1,76 +1,80 @@
 angular.module('Rutastic')
     .controller('userController',
-        ['$location', '$routeParams', '$window', 'usersFactory', function ($location, $routeParams, $window, usersFactory) {
+        ['$routeParams', '$scope', '$location', 'usersFactory', function ($routeParams, $scope, $location, usersFactory) {
             let userVM = this;
 
-            userVM.loggedUser = usersFactory.loggedUser
-            userVM.user = {} // User being edited
+            userVM.loggedUser = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username : undefined;
+            userVM.requestedUser = $routeParams.username;
+            userVM.originalEmail = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.attributes.email : undefined
+            userVM.newEmail = undefined // New user's email
+            userVM.currentPassword = undefined // Current user's password
+            userVM.newPassword = undefined // New user's password
             userVM.editionErrorMessage = '' // Message shown to the user in case any error arises during profile edition
+            userVM.passwordChangeErrorMessage = '' // Message shown to the user in case any error arises during password change
             userVM.deletionErrorMessage = '' // Message shown to the user in case any error arises during profile deletion
 
             userVM.functions = {
                 /**
-                 * Get and store within the controller the requested user profile by the route parameter 'ID'
-                 */
-                readUserBeingEdited: function () {
-
-                    // Check that the requested username can be obtained and perform an early validation
-
-                    if ($routeParams.username !== undefined && $routeParams.username.trim().length > 0) {
-                        usersFactory
-                            .getUser($routeParams.username)
-                            .then(function (response) {
-                                userVM.user = response.data;
-                                console.log(`Successfully retrieved the user with username (${$routeParams.username}) | Status: ${response.status}`);
-                            }, function (response) {
-                                console.log(`Error retrieving the user with username (${$routeParams.username}) | Status: ${response.status})`);
-                            })
-                    } else {
-                        alert('El nombre de usuario no es válido');
-                        console.log('ERROR READING THE REQUESTED USER. ROUTE PARAMETER (USERNAME) NOT SET OR INVALID');
-                        $location.path('/');
-                    }
-                },
-                /**
                  * Form submission handler for user profile edition
                  */
                 submitEditionForm: function () {
-                    usersFactory
-                        .updateUser(userVM.user)
-                        .then(function (status) {
-                            console.log(`Successfully edited the user with username (${userVM.user.username}) | Status: ${status}`);
 
-                            // On successful edition send the user to the landing page
-
-                            $location.path('/');
-                            userVM.editionErrorMessage = ''; // On successful edition clear any error message
-                        }, function (status) {
-                            userVM.editionErrorMessage = 'Compruebe que los campos sean válidos. Puede que el correo ya esté en uso por otro usuario';
-                            console.log(`Error editing the user with username (${userVM.user.username}) | Status : ${status}`)
-                        })
+                    if (userVM.newEmail !== userVM.originalEmail) {
+                        usersFactory
+                            .updateEmail(userVM.newEmail)
+                            .then(function (status) {
+                                // On successful edition update values
+                                if (status === 'SUCCESS') {
+                                    alert('Correo electrónico actualizado correctamente');
+                                    userVM.originalEmail = userVM.newEmail;
+                                    userVM.editionErrorMessage = ''; // On successful edition clear any error message
+                                    $scope.$apply();
+                                }
+                            }, function () {
+                                userVM.editionErrorMessage = 'Compruebe que el nuevo correo sea válido. Puede que el correo ya esté en uso por otro usuario';
+                                $scope.$apply();
+                            });
+                    }
+                },
+                submitChangePasswordForm: function () {
+                    // Check all enforced password policies before trying to change the current password
+                    let checksAgainstPolicies = usersFactory.checkPasswordAgainstPolicies(userVM.newPassword);
+                    if (checksAgainstPolicies === 0) {
+                        usersFactory.changePassword(userVM.currentPassword, userVM.newPassword)
+                            .then(status => {
+                                if (status === 'SUCCESS') {
+                                    alert('La contraseña ha sido cambiada con éxito');
+                                    userVM.currentPassword = '';
+                                    userVM.newPassword = '';
+                                    userVM.passwordChangeErrorMessage = '';
+                                    $scope.$apply();
+                                }
+                            })
+                            .catch(() => {
+                                userVM.passwordChangeErrorMessage = 'La contraseña actual no es válida';
+                                $scope.$apply();
+                            })
+                    } else {
+                        userVM.passwordChangeErrorMessage = checksAgainstPolicies;
+                    }
                 },
                 /**
                  * Form submission handler for user profile deletion
                  */
                 submitDeletionForm: function () {
                     usersFactory
-                        .deleteUser(userVM.user.username)
-                        .then(function (status) {
-
-                            // On successful user profile deletion log out the recently deleted user
-
-                            $window.location.href = 'https://localhost:8443/Rutastic/Logout.do';
-                            userVM.deletionErrorMessage = ''; // On successful edition clear any error message
-
-                            console.log(`USER WITH USERNAME (${userVM.user.username}) WAS DELETED | Status : ${status}`);
-                        }, function (status) {
-                            userVM.deletionErrorMessage = 'Algo fue mal eliminando su perfil. Pruebe de nuevo más tarde';
-                            console.log(`Error deleting the user with username (${userVM.user.username}) | Status: ${status}`);
+                        .deleteSelf()
+                        .then(() => {
+                            // On successful user profile deletion return to the landing page
+                            alert('Su cuenta ha sido eliminada con éxito');
+                            $location.path('/');
+                            $scope.$apply();
+                            userVM.deletionErrorMessage = ''; // On successful deletion clear any error message
                         })
+                        .catch(() => {
+                            userVM.deletionErrorMessage = 'Algo fue mal eliminando su perfil. Pruebe de nuevo más tarde';
+                            $scope.$apply();
+                        });
                 }
             }
-
-            // On controller instantiation attempt to read the requested user profile
-
-            userVM.functions.readUserBeingEdited();
         }])

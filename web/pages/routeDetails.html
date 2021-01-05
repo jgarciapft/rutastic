@@ -7,13 +7,13 @@
                     <div class="d-flex justify-content-between">
                         <h1 class="d-inline card-title font-weight-bold">{{routeDetailsVM.route.title}}</h1>
                         <div class="d-inline"
-                             data-ng-show="routeDetailsVM.route.blocked && (routeDetailsVM.loggedUser == undefined || routeDetailsVM.loggedUser.id != routeDetailsVM.route.createdByUser)">
+                             data-ng-show="routeDetailsVM.route.blocked && (routeDetailsVM.loggedUser == undefined || routeDetailsVM.loggedUser != routeDetailsVM.route.createdByUser)">
                                 <span class="badge badge-secondary blocked-info-pill py-2 px-3">
                                     La ruta ha sido bloqueada por su autor<i class="fa fa-lock ml-2"></i>
                                 </span>
                         </div>
                         <div data-ng-show="routeDetailsVM.loggedUser !== undefined
-                            && routeDetailsVM.loggedUser.id === routeDetailsVM.route.createdByUser">
+                            && routeDetailsVM.loggedUser === routeDetailsVM.route.createdByUser">
                             <a class="btn btn-secondary btn-sm justify-content-end mx-2 font-weight-bold"
                                data-ng-href="#!/rutas/EditarRuta/{{routeDetailsVM.route.id}}"
                                role="button">
@@ -111,7 +111,7 @@
         <div class="col d-flex justify-content-center py-3">
             <p class="lead text-primary d-inline text-center my-auto">
                 Rutas {{routeDetailsVM.currentSimilarity == 1 ? 'de similar' : routeDetailsVM.currentSimilarity == 2 ?
-                'de la misma' : 'que incluyen las mismas'}}
+                    'de la misma' : 'que incluyen las mismas'}}
             </p>
             <form class="form-inline d-inline ml-2">
                 <select aria-label="Elegir rutas similares" class="custom-select font-weight-bold text-primary"
@@ -148,7 +148,7 @@
                         </div>
                         <p class="d-inline-block text-dark text-center text-truncate text-wrap my-auto">
                             <span class="font-weight-bold">{{route.distance | distanceFormat}}</span> {{route.distance |
-                            distanceFormatString}}
+                        distanceFormatString}}
                         </p>
                     </li>
                     <li class="list-group-item d-flex justify-content-between px-4"

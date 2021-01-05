@@ -5,7 +5,7 @@ angular.module('Rutastic')
 
                 let routeHandlerVM = this;
 
-                routeHandlerVM.loggedUser = usersFactory.loggedUser
+                routeHandlerVM.loggedUser = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username : undefined;
                 routeHandlerVM.route = {}
                 routeHandlerVM.routecategories = [] // Possible route categories
                 routeHandlerVM.selectedCategoryNames = [] // Names of the categories that should be selected on route edition
