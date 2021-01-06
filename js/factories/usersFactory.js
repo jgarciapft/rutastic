@@ -132,6 +132,11 @@ angular.module('Rutastic')
                 })
         }
 
+        usersFactory.getJWTIdToken = function () {
+            return Auth.currentSession()
+                .then(session => session.idToken.jwtToken);
+        }
+
         /**
          * Change the currently logged user's email
          *

@@ -7,7 +7,6 @@ gen
 
 # User defined
 res
-web/node_modules
-web/WEB-INF/lib
-web/dist
-wildrydes
+node_modules
+dist
+rutastic-api
