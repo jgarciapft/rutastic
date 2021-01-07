@@ -3,7 +3,7 @@ angular.module('Rutastic')
         ['$http', '$httpParamSerializer', 'kudoEntriesFactory', 'usersFactory', 'routesFactory',
             function ($http, $httpParamSerializer, kudoEntriesFactory, usersFactory, routesFactory) {
 
-                let restUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/rutas/filtro'
+                let restUrl = 'https://dyyify4fq2.execute-api.eu-west-1.amazonaws.com/prod/rutas/filtro'
 
                 // FACTORY PROPERTIES
 
