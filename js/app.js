@@ -3,9 +3,9 @@ import Amplify from '@aws-amplify/core';
 // AWS Amplify configuration as a global
 const amplify = {
     cognito: {
-        region: 'us-east-1',
-        userPoolId: 'us-east-1_u8wFFnlzK',
-        userPoolWebClientId: '4ecml735e17g8b0q6mrpedejfv'
+        region: 'eu-west-1',
+        userPoolId: 'eu-west-1_6eMzSZMBl',
+        userPoolWebClientId: '4a9qqd5ojph0hud3lpi58s37ct'
     }
 }
 

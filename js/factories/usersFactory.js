@@ -6,9 +6,9 @@ angular.module('Rutastic')
 
         // LOCAL VARs
 
-        let restBaseUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/usuarios';
+        let restBaseUrl = 'https://dyyify4fq2.execute-api.eu-west-1.amazonaws.com/prod/usuarios';
 
-        let cognitoIDP = new AWS.CognitoIdentityServiceProvider({region: 'us-east-1'})
+        let cognitoIDP = new AWS.CognitoIdentityServiceProvider({region: 'eu-west-1'})
 
         // FACTORY PROPERTIES
 

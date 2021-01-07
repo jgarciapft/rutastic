@@ -1,7 +1,7 @@
 angular.module('Rutastic')
     .factory('kudoEntriesFactory', ['$http', 'usersFactory', function ($http, usersFactory) {
 
-        let restBaseUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/kudos'
+        let restBaseUrl = 'https://dyyify4fq2.execute-api.eu-west-1.amazonaws.com/prod/kudos'
 
         // FACTORY INTERFACE
 
