@@ -34,8 +34,6 @@ angular.module('Rutastic')
 
                                     if (routeDetailsVM.loggedUser !== undefined)
                                         routeDetailsVM.functions.readAssociatedKudoEntry();
-
-                                    $scope.$apply();
                                 }, function (response) {
                                     alert('La ruta solicitada no existe');
                                     console.log(`Error retrieving the route with ID (${$routeParams.ID}) | Status: ${response.status}`);
@@ -129,7 +127,7 @@ angular.module('Rutastic')
                         routesFactory
                             .updateKudoRating(routeDetailsVM.route.id, newRating)
                             .then(function (status) {
-                                routeDetailsVM.functions.readAssociatedKudoEntry();
+                                routeDetailsVM.functions.reflectRouteChange();
                                 console.log(`Updated kudo rating (${newRating}) | Status: ${status}`);
                             }, function (status) {
                                 alert('No se pudo cambiar la puntuación de la ruta. Pruebe más tarde');

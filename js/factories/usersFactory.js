@@ -173,7 +173,8 @@ angular.module('Rutastic')
                         if (err) console.log(err, err.stack); // an error occurred
                     });
 
-                    usersFactory.loggedCognitoUser = undefined;
+                    usersFactory.doSignOut();
+
                     notifyUserObservers();
                 });
         }
