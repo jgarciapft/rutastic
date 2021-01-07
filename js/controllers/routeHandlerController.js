@@ -1,7 +1,7 @@
 angular.module('Rutastic')
     .controller('routeHandlerController',
-        ['$location', '$routeParams', 'routesFactory', 'routeCategoriesFactory', 'routeQueryFactory', 'usersFactory',
-            function ($location, $routeParams, routesFactory, routeCategoriesFactory, routeQueryFactory, usersFactory) {
+        ['$location', '$routeParams', '$scope', 'routesFactory', 'routeCategoriesFactory', 'routeQueryFactory', 'usersFactory',
+            function ($location, $routeParams, $scope, routesFactory, routeCategoriesFactory, routeQueryFactory, usersFactory) {
 
                 let routeHandlerVM = this;
 
@@ -88,11 +88,14 @@ angular.module('Rutastic')
 
                                         $location.path(`/rutas/DetallesRuta/${(response.routeId)}`);
                                         routeHandlerVM.crudErrorMessage = ''; // Clear any error message
+                                        $scope.$apply();
 
                                         console.log(`Created route with ID (${(response.routeId)}) | Status: ${response.status}`);
                                     },
                                     function (response) {
                                         routeHandlerVM.crudErrorMessage = 'Revise que los campos sean válidos. Debe proporcionar un título, descripción, una o varias categorías registradas, la distancia, elevación y duración como números positivos y una dificultad registrada';
+                                        $scope.$apply();
+
                                         console.log(`An error occurred while creating a route | Status: ${response.status}`);
                                     })
                         } else if (routeHandlerVM.functions.isEditionForm()) { // EDITION form

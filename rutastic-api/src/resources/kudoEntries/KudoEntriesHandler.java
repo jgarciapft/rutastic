@@ -39,7 +39,7 @@ public class KudoEntriesHandler implements RequestHandler<APIGatewayProxyRequest
     public APIGatewayProxyResponse<?> handleRequest(APIGatewayProxyRequestEvent event, Context context) {
 
         String resource = event.getResource();
-        String resourceProxyValue = event.getPathParameters().get("proxy");
+        String resourceProxyValue = event.getPathParameters() != null ? event.getPathParameters().get("proxy") : "";
 
         // Decide how to handle the API Gateway event to return the adequate data
 
@@ -49,7 +49,7 @@ public class KudoEntriesHandler implements RequestHandler<APIGatewayProxyRequest
             return getUserKudoEntries(event, context).addCORS();
         }
         // Requested GET /kudos/{usuario}/{idRuta}
-        else if (resource.equals(THIS_RESOURCE + "/{proxy+}") && resourceProxyValue.matches("\\w+1/[0-9]+")
+        else if (resource.equals(THIS_RESOURCE + "/{proxy+}") && resourceProxyValue.matches("\\w+/[0-9]+")
                 && event.getHttpMethod().equals("GET")) {
             return getUserKudoEntriesForRoute(event, context).addCORS();
         }
@@ -60,7 +60,7 @@ public class KudoEntriesHandler implements RequestHandler<APIGatewayProxyRequest
     }
 
     // GET /kudos/{usuario}
-    private APIGatewayProxyResponse<Object> getUserKudoEntries(APIGatewayProxyRequestEvent event, Context context) {
+    private APIGatewayProxyResponse<?> getUserKudoEntries(APIGatewayProxyRequestEvent event, Context context) {
 
         String username = event.getPathParameters().get("proxy");
         String cognitoUser = ((Map<String, String>) event.getRequestContext().getAuthorizer().get("claims"))
@@ -78,7 +78,7 @@ public class KudoEntriesHandler implements RequestHandler<APIGatewayProxyRequest
     }
 
     // GET /kudos/{usuario}/{idRuta}
-    private APIGatewayProxyResponse<Object> getUserKudoEntriesForRoute(APIGatewayProxyRequestEvent event, Context context) {
+    private APIGatewayProxyResponse<?> getUserKudoEntriesForRoute(APIGatewayProxyRequestEvent event, Context context) {
 
         String username = event.getPathParameters().get("proxy").split("/")[0];
         long routeId = Long.parseLong(event.getPathParameters().get("proxy").split("/")[1]);

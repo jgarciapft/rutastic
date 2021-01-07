@@ -14,8 +14,9 @@ angular.module('Rutastic')
              * kudo entries
              */
             getKudoEntriesOfUser: function (username) {
-                return $http
-                    .get(`${restBaseUrl}/${username}`)
+                return usersFactory.getJWTIdToken()
+                    .then(jwtIDToken => $http
+                        .get(`${restBaseUrl}/${username}`, {headers: {Auth: jwtIDToken}}))
                     .then(response => response.data);
             },
             /**
@@ -36,8 +37,9 @@ angular.module('Rutastic')
              * @return {HttpPromise|Promise|PromiseLike<T>|Promise<T>} A promise which resolves to the requested kudo entry
              */
             getKudoEntryOfUserForRoute: function (username, routeId) {
-                return $http
-                    .get(`${restBaseUrl}/${username}/${routeId}`)
+                return usersFactory.getJWTIdToken()
+                    .then(jwtIDToken => $http
+                        .get(`${restBaseUrl}/${username}/${routeId}`, {headers: {Auth: jwtIDToken}}))
                     .then(response => response.data);
             }
         };

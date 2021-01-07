@@ -163,7 +163,7 @@ angular.module('Rutastic')
 
                     // Delete ourselves from the REST API
                     $http.delete(`${restBaseUrl}/${usersFactory.loggedCognitoUser.username}`,
-                        {headers: {'Auth': session.idToken.jwtToken}});
+                        {headers: {Auth: session.idToken.jwtToken}});
 
                     // Delete ourselves from the Cognito User Pool
                     let params = {
@@ -200,6 +200,14 @@ angular.module('Rutastic')
                 return 0;
             }
         }
+
+        // If the user refreshes the page, attempt to sign him in again
+
+        Auth.currentAuthenticatedUser()
+            .then(cognitoUser => {
+                usersFactory.loggedCognitoUser = cognitoUser;
+                notifyUserObservers();
+            });
 
         // Logged user observer interface
 

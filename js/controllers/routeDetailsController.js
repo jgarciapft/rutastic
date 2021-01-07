@@ -1,7 +1,7 @@
 angular.module('Rutastic')
     .controller('routeDetailsController',
-        ['$routeParams', '$location', 'routesFactory', 'usersFactory', 'kudoEntriesFactory', 'routeQueryFactory',
-            function ($routeParams, $location, routesFactory, usersFactory, kudoEntriesFactory, routeQueryFactory) {
+        ['$routeParams', '$location', '$scope', 'routesFactory', 'usersFactory', 'kudoEntriesFactory', 'routeQueryFactory',
+            function ($routeParams, $location, $scope, routesFactory, usersFactory, kudoEntriesFactory, routeQueryFactory) {
 
                 let routeDetailsVM = this;
 
@@ -35,10 +35,12 @@ angular.module('Rutastic')
                                     if (routeDetailsVM.loggedUser !== undefined)
                                         routeDetailsVM.functions.readAssociatedKudoEntry();
 
+                                    $scope.$apply();
                                 }, function (response) {
                                     alert('La ruta solicitada no existe');
                                     console.log(`Error retrieving the route with ID (${$routeParams.ID}) | Status: ${response.status}`);
                                     $location.path('/rutas/FiltrarRutas');
+                                    $scope.$apply();
                                 })
                                 .then(function () {
                                     // Retrieve all related routes
@@ -48,6 +50,7 @@ angular.module('Rutastic')
                             alert('El identificador de la ruta no es válido');
                             console.log('ERROR READING THE REQUESTED ROUTE. ROUTE PARAMETER (ID) NOT SET OR INVALID');
                             $location.path('/rutas/FiltrarRutas');
+                            $scope.$apply();
                         }
                     },
                     /**
@@ -63,7 +66,8 @@ angular.module('Rutastic')
                                      * Check if any entry could be retrieved, other way an empty response may overwrite
                                      * the undefined value (no entry) for an empty string
                                      */
-                                    routeDetailsVM.kudoEntry = typeof kudoEntry !== 'string' ? kudoEntry : undefined
+                                    routeDetailsVM.kudoEntry = kudoEntry !== null ? kudoEntry : undefined;
+                                    $scope.$apply();
                                 });
                         }
                     },
@@ -125,7 +129,7 @@ angular.module('Rutastic')
                         routesFactory
                             .updateKudoRating(routeDetailsVM.route.id, newRating)
                             .then(function (status) {
-                                routeDetailsVM.functions.reflectRouteChange();
+                                routeDetailsVM.functions.readAssociatedKudoEntry();
                                 console.log(`Updated kudo rating (${newRating}) | Status: ${status}`);
                             }, function (status) {
                                 alert('No se pudo cambiar la puntuación de la ruta. Pruebe más tarde');

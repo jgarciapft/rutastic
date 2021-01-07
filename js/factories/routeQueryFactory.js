@@ -8,7 +8,7 @@ angular.module('Rutastic')
                 // FACTORY PROPERTIES
 
                 let routeQueryFactory = {
-                    latestRouteQuery: {}, // Object representing the latest executed route query
+                    latestRouteQuery: {buscarTexto: ""}, // Object representing the latest executed route query
                     filteredRoutes: [], // Collection of routes that made through the route filter
                     topWeeklyRoutes: [], // Top users in descending order by top monthly routes
                     topMonthlyRoutes: [], // Top users in descending order by average kudo ratings of their routes

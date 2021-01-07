@@ -1,5 +1,5 @@
 angular.module('Rutastic')
-    .factory('routesFactory', ['$http', function ($http) {
+    .factory('routesFactory', ['$http', 'usersFactory', function ($http, usersFactory) {
 
         let restBaseUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/rutas';
 
@@ -61,7 +61,7 @@ angular.module('Rutastic')
         routesFactory.getRelatedRoutes = function (routeId, similarity, limit, distanceDelta) {
 
             let limitQueryParam = limit > 0 ? `limite=${limit}` : '';
-            let distanceDeltaQueryParam = distanceDelta > 0 ? `deltaDistancia=${distanceDelta}` : '';
+            let distanceDeltaQueryParam = distanceDelta > 0 ? `deltaDistancia=${Math.trunc(distanceDelta)}` : '';
 
             // Build query string based on which parameters have been provided
 
@@ -81,17 +81,17 @@ angular.module('Rutastic')
          * which has attaches to a new property 'routeId' the id of the newly created route
          */
         routesFactory.createRoute = function (route) {
-            return $http
-                .post(restBaseUrl, route)
-                .then(response => {
+            return usersFactory.getJWTIdToken()
+                .then(jwtIDToken => $http
+                    .post(restBaseUrl, route, {headers: {Auth: jwtIDToken}})
+                    .then(response => {
+                        // Retrieve from the location header the ID of the newly created route
 
-                    // Retrieve from the location header the ID of the newly created route
+                        let locationHeaderSplit = response.headers(['location']).split('/');
+                        response.routeId = locationHeaderSplit[locationHeaderSplit.length - 1]; // Get last entry
 
-                    let locationHeaderSplit = response.headers(['location']).split('/');
-                    response.routeId = locationHeaderSplit[locationHeaderSplit.length - 1]; // Get last entry
-
-                    return response;
-                });
+                        return response;
+                    }));
         }
 
         /**
@@ -102,9 +102,10 @@ angular.module('Rutastic')
          * of the response
          */
         routesFactory.updateRoute = function (route) {
-            return $http
-                .put(`${restBaseUrl}/${route.id}`, route)
-                .then(response => response.status);
+            return usersFactory.getJWTIdToken()
+                .then(jwtIDToken => $http
+                    .put(`${restBaseUrl}/${route.id}`, route, {headers: {Auth: jwtIDToken}})
+                    .then(response => response.status));
         }
 
         /**
@@ -115,9 +116,10 @@ angular.module('Rutastic')
          * of the response
          */
         routesFactory.deleteRoute = function (routeId) {
-            return $http
-                .delete(`${restBaseUrl}/${routeId}`)
-                .then(response => response.status);
+            return usersFactory.getJWTIdToken()
+                .then(jwtIDToken => $http
+                    .delete(`${restBaseUrl}/${routeId}`, {headers: {Auth: jwtIDToken}})
+                    .then(response => response.status));
         }
 
         /**
@@ -130,9 +132,11 @@ angular.module('Rutastic')
          * of the response
          */
         routesFactory.setNewBlockedState = function (routeId, action) {
-            return $http
-                .put(`${restBaseUrl}/${routeId}/estado?accion=${action === 'blocked' ? 'bloquear' : action === 'unblocked' ? 'desbloquear' : ''}`, null)
-                .then(response => response.status);
+            return usersFactory.getJWTIdToken()
+                .then(jwtIDToken => $http
+                    .put(`${restBaseUrl}/${routeId}/estado?accion=${action === 'blocked' ? 'bloquear' : action === 'unblocked' ? 'desbloquear' : ''}`, null,
+                        {headers: {Auth: jwtIDToken}})
+                    .then(response => response.status));
         }
 
         /**
@@ -143,9 +147,11 @@ angular.module('Rutastic')
          * from taking one)
          */
         routesFactory.updateKudoRating = function (routeId, action) {
-            return $http
-                .put(`${restBaseUrl}/${routeId}/kudos?accion=${action === 1 ? 'dar' : action === -1 ? 'quitar' : ''}`, null)
-                .then(response => response.status);
+            return usersFactory.getJWTIdToken()
+                .then(jwtIDToken => $http
+                    .put(`${restBaseUrl}/${routeId}/kudos?accion=${action === 1 ? 'dar' : action === -1 ? 'quitar' : ''}`, null,
+                        {headers: {Auth: jwtIDToken}})
+                    .then(response => response.status));
         }
 
         return routesFactory;

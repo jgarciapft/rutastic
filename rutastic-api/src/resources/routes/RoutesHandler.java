@@ -58,7 +58,7 @@ public class RoutesHandler implements RequestHandler<APIGatewayProxyRequestEvent
     public APIGatewayProxyResponse<?> handleRequest(APIGatewayProxyRequestEvent event, Context context) {
 
         String resource = event.getResource();
-        String resourceProxyValue = event.getPathParameters().get("proxy");
+        String resourceProxyValue = event.getPathParameters() != null ? event.getPathParameters().get("proxy") : "";
 
         // Decide how to handle the API Gateway event to return the adequate data
 
@@ -446,6 +446,7 @@ public class RoutesHandler implements RequestHandler<APIGatewayProxyRequestEvent
         // New route created. Return code 201 (Created) and set Location header to /rutas/{idNuevaRuta}
         if (newRouteID != -1)
             return new APIGatewayProxyResponse<>(CREATED)
+                    .addHeader("Access-Control-Expose-Headers", "Location")
                     .addHeader("Location", THIS_RESOURCE + "/" + newRouteID);
         else // An error occurred while creating the new route
             return new APIGatewayProxyResponse<>(INTERNAR_SERVER_ERROR,
@@ -575,7 +576,7 @@ public class RoutesHandler implements RequestHandler<APIGatewayProxyRequestEvent
                 newKudoEntry.setUser(cognitoUser);
                 newKudoEntry.setRoute(routeId);
                 newKudoEntry.setModifier(equivalentKudoModifier);
-                kudoUpdateSuccessful = (long) kudoEntryDAO.add2(newKudoEntry, true)[0] != -1;
+                kudoUpdateSuccessful = kudoEntryDAO.add2(newKudoEntry, true)[0] instanceof String;
             }
 
             // Error registering a new kudo entry / updating an existing kudo entry at the backend
