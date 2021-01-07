@@ -3,7 +3,7 @@ angular.module('Rutastic')
         ['$http', '$httpParamSerializer', 'kudoEntriesFactory', 'usersFactory', 'routesFactory',
             function ($http, $httpParamSerializer, kudoEntriesFactory, usersFactory, routesFactory) {
 
-                let restUrl = 'https://localhost:8443/Rutastic/rest/rutas/filtro'
+                let restUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/rutas/filtro'
 
                 // FACTORY PROPERTIES
 
@@ -28,6 +28,10 @@ angular.module('Rutastic')
                  * @return {HttpPromise|Promise|PromiseLike<T>|Promise<T>} A promise which doesn't resolve to anything
                  */
                 routeQueryFactory.executeFilter = function (query) {
+                    if (query.mostrarMisrutas) {
+                        query.mostrarMisrutas = usersFactory.loggedCognitoUser !== undefined ? usersFactory.loggedCognitoUser.username
+                            : query.mostrarMisrutas;
+                    }
                     routeQueryFactory.latestRouteQuery = query; // Update the latest executed route query
 
                     return $http

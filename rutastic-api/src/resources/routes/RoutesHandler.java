@@ -443,9 +443,10 @@ public class RoutesHandler implements RequestHandler<APIGatewayProxyRequestEvent
 
         long newRouteID = routeDAO.add(newRoute)[0];
 
-        // New route created. Return code 201 (Created)
+        // New route created. Return code 201 (Created) and set Location header to /rutas/{idNuevaRuta}
         if (newRouteID != -1)
-            return new APIGatewayProxyResponse<>(CREATED);
+            return new APIGatewayProxyResponse<>(CREATED)
+                    .addHeader("Location", THIS_RESOURCE + "/" + newRouteID);
         else // An error occurred while creating the new route
             return new APIGatewayProxyResponse<>(INTERNAR_SERVER_ERROR,
                     new APIErrorBody("Ocurrió un error al crear la ruta proporcionada"));

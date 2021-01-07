@@ -1,7 +1,7 @@
 angular.module('Rutastic')
     .factory('routeCategoriesFactory', ['$http', function ($http) {
 
-        let restBaseUrl = 'https://localhost:8443/Rutastic/rest/categoriasruta';
+        let restBaseUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/categoriasruta';
 
         return {
             /**

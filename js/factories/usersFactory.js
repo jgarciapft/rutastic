@@ -6,7 +6,7 @@ angular.module('Rutastic')
 
         // LOCAL VARs
 
-        let restBaseUrl = 'https://localhost:8443/Rutastic/rest/usuarios';
+        let restBaseUrl = 'https://nx4zpjerx5.execute-api.us-east-1.amazonaws.com/v1/usuarios';
 
         let cognitoIDP = new AWS.CognitoIdentityServiceProvider({region: 'us-east-1'})
 
@@ -35,21 +35,9 @@ angular.module('Rutastic')
          */
         usersFactory.getAllUsernames = function () {
             return $http
-                .get(`${restBaseUrl}`)
+                .get(restBaseUrl)
                 .then(response => response.data);
         };
-
-        /**
-         * Retrieve an user by its username
-         *
-         * @param username The username of the user to be retrieved
-         * @return {HttpPromise|Promise|PromiseLike<T>|Promise<T>} An HTTP promise with the user and the status code
-         */
-        usersFactory.getUser = function (username) {
-            return $http
-                .get(`${restBaseUrl}/${username}`)
-                .then(response => response);
-        }
 
         /**
          * Retrieve a list of the users who are authors of the top monthly routes, ordered by descending number
@@ -60,7 +48,7 @@ angular.module('Rutastic')
          */
         usersFactory.getTop5UsersByTopRoutes = function () {
             return $http
-                .get(`${restBaseUrl}/estadisticas?e=top5UsuariosPorTopRutas`)
+                .get(`${restBaseUrl}?estadistica=top5UsuariosPorTopRutas`)
                 .then(response => response.data);
         }
 
@@ -72,7 +60,7 @@ angular.module('Rutastic')
          */
         usersFactory.getTop5UsersByAvgKudos = function () {
             return $http
-                .get(`${restBaseUrl}/estadisticas?e=top5UsuariosPorMediaKudos`)
+                .get(`${restBaseUrl}?estadistica=top5UsuariosPorMediaKudos`)
                 .then(response => response.data);
         }
 
@@ -84,7 +72,6 @@ angular.module('Rutastic')
          * Cognito user
          */
         usersFactory.registerNewUser = function (newUser) {
-            // TODO Añadir usuario a la BD también
             return Auth.signUp({
                 username: newUser.username,
                 password: newUser.password,
@@ -102,7 +89,9 @@ angular.module('Rutastic')
          * @return {Promise<any>}
          */
         usersFactory.confirmNewUser = function (username, code) {
-            return Auth.confirmSignUp(username, code);
+            return Auth.confirmSignUp(username, code)
+                // After confirmation register the new user on the REST API
+                .then(() => $http.post(restBaseUrl, {username: username}))
         }
 
         /**
@@ -170,19 +159,22 @@ angular.module('Rutastic')
          */
         usersFactory.deleteSelf = function () {
             return Auth.currentSession()
-                .then(session => session.accessToken.jwtToken)
-                .then(jwtAccessToken => {
-                    let params = {
-                        AccessToken: jwtAccessToken
-                    }
+                .then(session => {
 
+                    // Delete ourselves from the REST API
+                    $http.delete(`${restBaseUrl}/${usersFactory.loggedCognitoUser.username}`,
+                        {headers: {'Auth': session.idToken.jwtToken}});
+
+                    // Delete ourselves from the Cognito User Pool
+                    let params = {
+                        AccessToken: session.accessToken.jwtToken
+                    }
                     cognitoIDP.deleteUser(params, function (err, data) {
                         if (err) console.log(err, err.stack); // an error occurred
                     });
 
                     usersFactory.loggedCognitoUser = undefined;
                     notifyUserObservers();
-                    // TODO Borrar al usuario de la BD también
                 });
         }
 
